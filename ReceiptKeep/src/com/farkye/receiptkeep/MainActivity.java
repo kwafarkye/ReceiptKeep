@@ -122,7 +122,7 @@ public class MainActivity extends FragmentActivity implements
 					textView.append("This is the report analysis tab");
 					break;
 				default:
-					textView.append("This is the default tab 1212");
+					textView.append("This is the default tab. I am goooood");
 					break;
 			}
 			return textView;
