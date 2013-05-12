@@ -22,6 +22,8 @@ public class MainActivity extends FragmentActivity implements
 	 * current tab position.
 	 */
 	private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
+	private static final int RECEIVE_TAB = 1;
+	private static final int REPORT_TAB = 2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -108,9 +110,21 @@ public class MainActivity extends FragmentActivity implements
 			// Create a new TextView and set its text to the fragment's section
 			// number argument value.
 			TextView textView = new TextView(getActivity());
-			textView.setGravity(Gravity.CENTER);
+			textView.setGravity(Gravity.TOP);
 			textView.setText(Integer.toString(getArguments().getInt(
 					ARG_SECTION_NUMBER)));
+			switch (getArguments().getInt(ARG_SECTION_NUMBER))
+			{
+				case (RECEIVE_TAB):
+					textView.append("This is the receive a receipt tab");
+					break;
+				case (REPORT_TAB):
+					textView.append("This is the report analysis tab");
+					break;
+				default:
+					textView.append("This is the default tab 1212");
+					break;
+			}
 			return textView;
 		}
 	}
