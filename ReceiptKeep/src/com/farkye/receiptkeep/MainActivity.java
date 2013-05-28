@@ -12,21 +12,25 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.Vibrator;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.nfc.*;
 import android.nfc.tech.*;
 
 import com.farkye.utilities.*;
+import com.farkye.receiptdata.*;
 
 
 
@@ -58,7 +62,7 @@ public class MainActivity extends FragmentActivity implements
 		// Set up the action bar to show tabs.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
+		
 		// For each of the sections in the app, add a tab to the action bar.
 		actionBar.addTab(actionBar.newTab().setText(R.string.receive_receipt)
 				.setTabListener(this));
@@ -66,6 +70,7 @@ public class MainActivity extends FragmentActivity implements
 				.setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_section3)
 				.setTabListener(this));
+		
 		
 		//Initialize NFC and add Intent
 		nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -185,6 +190,24 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+			case R.id.menu_settings:
+				//Navigate to settings view
+				//
+				return true;
+			case R.id.menu_save:
+				//Run a save service
+				//Notification: Would you like to store this receipt?
+				return true;
+		}
+		super.onOptionsItemSelected(item);
+		receiveTab.append("\n"+item.getTitle());
+		return true;
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -237,7 +260,8 @@ public class MainActivity extends FragmentActivity implements
 			// Create a new TextView and set its text to the fragment's section
 			// number argument value.
 			TextView textView = new TextView(getActivity());
-			textView.setGravity(Gravity.TOP);
+			textView.setMovementMethod(new ScrollingMovementMethod());
+			textView.setGravity(Gravity.TOP | Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
 			textView.setText(Integer.toString(getArguments().getInt(
 					ARG_SECTION_NUMBER)));
 			switch (getArguments().getInt(ARG_SECTION_NUMBER))

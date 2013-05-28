@@ -41,6 +41,10 @@ public abstract class ReceiptObject {
 	/* Flag specifying whether the receipt is important to the user */
 	private boolean important = false;
 	
+	/* Name of the store/business that this receipt is from */
+	private String storeName = "";
+	
+	
 	public ReceiptObject() {
 		timeStamp = new Date();
 		receiptID = idNums++;
@@ -77,6 +81,16 @@ public abstract class ReceiptObject {
 	}
 	
 	/**
+	 * Specifies whether this receipt was listed as important or not
+	 * 
+	 * @return
+	 * 	Returns true if the receipt is important, false if not
+	 */
+	public boolean getImportance() {
+		return important;
+	}
+	
+	/**
 	 * Get the ID of the receipt
 	 * 
 	 * @return
@@ -94,6 +108,16 @@ public abstract class ReceiptObject {
 	 */
 	public int getUniqID() {
 		return hashID;
+	}
+	
+	/**
+	 * Get the name of the store this receipt is from
+	 * 
+	 * @return
+	 * 	Returns the name of the store this receipt is from
+	 */
+	public String getStoreName() {
+		return storeName;
 	}
 	
 	/**
@@ -128,9 +152,21 @@ public abstract class ReceiptObject {
 	}
 	
 	/**
-	 * Set the type of receipt this is. //TODO: May want to make this a tag system
+	 * Set the name of the store this receipt is from
+	 * 
+	 * @param name
+	 * 	Name of the store this receipt is from
+	 */
+	public void setStoreName(String name) {
+		storeName = name;
+		return;
+	}
+	
+	/**
+	 * Set the type of receipt this is. //TODO: May want to make this a tag system (ala evernote tags)
 	 * @param type
 	 * 	The type of the receipt as specified by the user
 	 */
 	public abstract void setReceiptType(String type);
+	
 }
