@@ -2,6 +2,7 @@ package com.farkye.receiptkeep;
 
 import java.io.IOException;
 
+import android.app.Activity;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 import android.nfc.*;
 import android.nfc.tech.*;
 
@@ -34,8 +36,8 @@ import com.farkye.receiptdata.*;
 
 
 
-public class MainActivity extends FragmentActivity implements
-		ActionBar.TabListener {
+public class MainActivity extends Activity { //FragmentActivity implements
+		//ActionBar.TabListener {
 
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
@@ -48,17 +50,15 @@ public class MainActivity extends FragmentActivity implements
 	private static TextView receiveTab; //Text View of receive activity tab
 	private static TextView reportTab; //Text View of report activity tab
 	
-	NfcAdapter nfcAdapter;
-	PendingIntent mNfcPendingIntent;
-	IntentFilter[] mNdefExchangeFilters;
-	IntentFilter[] mMifareFilters;
-	String[][] mTechLists;
+	Button addReceiptBtn;
+	Button viewReceiptsBtn;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		/**
 		// Set up the action bar to show tabs.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -70,68 +70,22 @@ public class MainActivity extends FragmentActivity implements
 				.setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_section3)
 				.setTabListener(this));
+		**/
+		
+		addReceiptBtn = (Button) findViewById(R.id.add);
+		viewReceiptsBtn = (Button) findViewById(R.id.view_db);
 		
 		
-		//Initialize NFC and add Intent
-		nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-		if (nfcAdapter == null)
-		{
-			Toast.makeText(this, "No NFC Adapter, Maybe try Bluetooth",
-					Toast.LENGTH_LONG).show();
-		}
-		//receiveTab.append("\nIn Create");
-		mNfcPendingIntent = PendingIntent.getActivity(this, 0,
-			new Intent(
-					this, 
-					this.getClass())
-			.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
-			0);
-				
-				
-		//Intent filters for reading a note from a tag or exchanging over p2p
-		IntentFilter ndefDetected = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-		try {
-			ndefDetected.addDataType("text/plain");
-		} catch (MalformedMimeTypeException ex) { }
-		mNdefExchangeFilters = new IntentFilter[] { ndefDetected };
-				
-		//Intent filter for reading a mifare classic card/data
-		IntentFilter mifareDetected = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
-		
-		try {
-			mifareDetected.addDataType("*/*");
-		} catch (MalformedMimeTypeException e) {
-			
-			throw new RuntimeException("fail", e);
-		}
-		IntentFilter someTag = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-		mMifareFilters = new IntentFilter[] { mifareDetected, someTag };
-		if (mMifareFilters != null) {
-			toast("Filter created");
-		}
-		mTechLists = new String[][] {new String[] {MifareClassic.class.getName(),
-				NfcA.class.getName(), NfcB.class.getName(), NfcF.class.getName(),
-				NfcV.class.getName(), IsoDep.class.getName(), Ndef.class.getName(),
-				NdefFormatable.class.getName()} };
-		Intent intent = getIntent();
-		resolveIntent(intent);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		nfcAdapter.enableForegroundDispatch(this, mNfcPendingIntent,
-				mMifareFilters, mTechLists);
-		receiveTab.append("\nAdded new mifare intent filter");
-		Intent intent = getIntent();
-		resolveIntent(intent);
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		nfcAdapter.disableForegroundDispatch(this);
-		toast("App Paused");
 	}
 	
 	@Override
@@ -140,54 +94,33 @@ public class MainActivity extends FragmentActivity implements
 		//NDEF Exchange
 		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()))
 		{
-			//vibrate(500); //Vibrate for half a secondb.
-			receiveTab.append("\nWe Discovered an NDEsF tag");
-			NdefMessage[] msgs = getNdefData(intent);
-			if (msgs == null) {
-				receiveTab.append("\nThere are NO messages");
-				return;
-			}
-			else {
-				receiveTab.append("\nThere ARE MESSAGES");
-				Toast.makeText(this, "There are messages",
-						Toast.LENGTH_LONG).show();
-			}
+			
 		}
 		else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
-			receiveTab.append("\nNew  Card found");
-			resolveIntent(intent); //From example on mifareclassic..blogspot
+			
 		}
 		else if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
-			receiveTab.append("\nTag found from card");
-			resolveIntent(intent);
+			
 		}
-		
-		//Mifare Classic Mode
-		/*
-		if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction()))
-		{
-			vibrate(1000); //Vibrate for a second
-			Toast.makeText(this, "Mifare Type received",
-					Toast.LENGTH_LONG).show();
-		}
-		*/
 	}
+	
 	
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		// Restore the previously serialized current tab position.
 		if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
-			getActionBar().setSelectedNavigationItem(
-					savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
+			//getActionBar().setSelectedNavigationItem(
+			//		savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
 		}
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		// Serialize the current tab position.
-		outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
-				.getSelectedNavigationIndex());
+		//outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
+		//		.getSelectedNavigationIndex());
 	}
+	
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -203,7 +136,7 @@ public class MainActivity extends FragmentActivity implements
 				return true;
 		}
 		super.onOptionsItemSelected(item);
-		receiveTab.append("\n"+item.getTitle());
+		////receiveTab.append("\n"+item.getTitle());
 		return true;
 	}
 	
@@ -214,6 +147,7 @@ public class MainActivity extends FragmentActivity implements
 		return true;
 	}
 
+	/**
 	@Override
 	public void onTabSelected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
@@ -240,15 +174,19 @@ public class MainActivity extends FragmentActivity implements
 			FragmentTransaction fragmentTransaction) {
 	}
 
+	**/
+
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
 	 * displays dummy text.
 	 */
-	public static class DummySectionFragment extends Fragment {
+	
+	//public static class DummySectionFragment extends Fragment {
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
 		 */
+	/**
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
 		public DummySectionFragment() {
@@ -267,7 +205,7 @@ public class MainActivity extends FragmentActivity implements
 			switch (getArguments().getInt(ARG_SECTION_NUMBER))
 			{
 				case (RECEIVE_TAB):
-					receiveTab = textView; //Assign this tab a text view
+					//receiveTab = textView; //Assign this tab a text view
 					textView.append("This is the receive a receipt tab");
 					break;
 				case (REPORT_TAB):
@@ -281,202 +219,27 @@ public class MainActivity extends FragmentActivity implements
 			return textView;
 		}
 	}
+	**/
 
-	protected NdefMessage[] getNdefData(Intent intent) {
-		NdefMessage[] messages = null;
-		String action = intent.getAction();
+	
+	public void retrieveReceipt(View view1) {
+		Intent retrieve = new Intent(getApplicationContext(), AddReceiptActivity.class);
+		vibrate(500);
 		
-		if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action) ||
-				NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action) ||
-				NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
-			Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
-					NfcAdapter.EXTRA_NDEF_MESSAGES);
-			messages = getMessages(rawMsgs);
-		}
-		else {
-			Toast.makeText(this, "Not sure which nfc type this is",
-					Toast.LENGTH_LONG).show();
-		}
-		
-		return messages;
+		startActivity(retrieve);
 	}
-
-	private NdefMessage[] getMessages(Parcelable[] rawMsgs) {
-		NdefMessage[] msgs = null;
-		if (rawMsgs != null) {
-			msgs = new NdefMessage[rawMsgs.length];
-			
-			for (int i = 0; i < rawMsgs.length; i++) {
-				msgs[i] = (NdefMessage) rawMsgs[i];
-			}
-			
-			return msgs;
-		}
-		else {
-			byte[] empty = new byte[] {};
-			NdefRecord record = new NdefRecord(NdefRecord.TNF_UNKNOWN, empty,
-					empty, empty);
-			NdefMessage msg = new NdefMessage(new NdefRecord[] {
-					record
-			});
-			msgs = new NdefMessage[] {msg};
-			
-			return msgs;
-		}
+	
+	public void viewReceipts(View view1) {
+		Intent viewDB = new Intent(getApplicationContext(), ViewReceipts.class);
+		vibrate(1000);
+		
+		startActivity(viewDB);
 	}
 	
 	private void toast(String text) {
 		Toast.makeText(this, text, Toast.LENGTH_LONG).show();
 	}
 	
-	private void resolveIntent(Intent intent) {
-		String action = intent.getAction();
-		toast("resolving intent");
-		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-			toast("RESOLVE THIS INTENT");
-			Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-			receiveTab.append("\nResolve Intent for NDEF discovery");
-		}
-		else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
-			Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-			MifareClassic mfc = MifareClassic.get(tagFromIntent);
-			byte[] data;
-			receiveTab.append("\nNew tech tag received");
-			try {
-				mfc.connect();
-				boolean auth = false;
-				String cardData = null;
-				int secCount = mfc.getSectorCount();
-				int bCount = 0;
-				int bIndex = 0;
-				for (int j=0; j < secCount; j++) {
-					auth = mfc.authenticateSectorWithKeyA(j, MifareClassic.KEY_DEFAULT);
-					if (auth) {
-						bCount = mfc.getBlockCountInSector(j);
-						bIndex = 0;
-						for (int i =0; i < bCount; i++) {
-							bIndex = mfc.sectorToBlock(j);
-							data = mfc.readBlock(bIndex);
-							cardData = new String(data);
-							receiveTab.append("\n" + cardData);
-							bIndex++;
-						}
-					}
-					else { Toast.makeText(this, "Auth failed",
-							Toast.LENGTH_LONG).show(); 
-					}
-				}
-			} catch (IOException ex) {
-				Toast.makeText(this, "IO Error while attempting to read mifare",
-						Toast.LENGTH_LONG).show();
-			}
-		}
-		else if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
-			receiveTab.append("\nSome Tag found from card");
-			Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-			
-			receiveTab.append("\n" + tagFromIntent.toString());
-			for (int k = 0; k < tagFromIntent.getTechList().length; k++) {
-				receiveTab.append("\nTech List: " + tagFromIntent.getTechList()[k]);
-				if (tagFromIntent.getTechList()[k].equals("android.nfc.tech.NfcA")) {
-					// Run connection method
-					parseNfcATag(tagFromIntent);
-					//connectToNDEF(tagFromIntent);
-					//parseMifareTag(tagFromIntent);
-				}
-				else if (tagFromIntent.getTechList()[k].equals("android.nfc.tech.Ndef")) {
-					connectToNDEF(tagFromIntent);
-					//receiveTab.append("\nRun connect to NDEF");
-				}
-			}
-		}
-	}
-	
-	private void parseMifareTag(Tag tag) {
-		MifareClassic mfc = MifareClassic.get(tag);
-		try {
-			mfc.connect();
-			receiveTab.append("\nThis worked for Mifare");
-		}
-		catch (IOException ex) {
-			receiveTab.append("\nMifare read attempt threw an error");
-		}
-	}
-	
-	private void connectToNDEF(Tag tag) {
-		Ndef ndef = Ndef.get(tag);
-		try {
-			receiveTab.append("\n" + ndef.getType());
-			NdefMessage message = ndef.getCachedNdefMessage();
-			if (message != null) {
-				NdefRecord[] recordsFromMessage = message.getRecords();
-				for (int i = 0; i < recordsFromMessage.length; i++) {
-					printMessage(recordsFromMessage[i]);
-				}
-			}
-			else {
-				receiveTab.append("\nNull message");
-			}
-			receiveTab.append("\nNDEF did work!");
-		}
-		catch (Exception ex) {
-			receiveTab.append("\nNDEF did not work");
-		}
-	}
-	
-	private void parseNfcATag(Tag tag) {
-		//Get Instance for given tag
-		NfcA nfcATag = NfcA.get(tag);
-		byte bytesRead[] = null;
-		short sakVal;
-		byte bytesSent[] = "Kwaku Farkye's tag".getBytes();
-		try {
-		   nfcATag.connect();
-		   
-		   if (nfcATag.isConnected()) {
-		      bytesRead = nfcATag.getAtqa();
-		      sakVal = nfcATag.getSak();
-			  //bytesRead = nfcATag.transceive(bytesSent);
-			  int maxBytes = nfcATag.getMaxTransceiveLength();
-			  receiveTab.append("\nMax Bytes: " + maxBytes);
-			  receiveTab.append("\nSak Val is: " + sakVal);
-			   //String str;
-			   //for (int j = 0; j < bytesRead.length; j++) {
-				   //str = new String(bytesRead[j]);
-				 //  receiveTab.append("\nByte " + j + " equals " + bytesRead[j]);
-			   //}
-			  /*
-			  Tag t = nfcATag.getTag();
-			  Parcel parcel = Parcel.obtain();
-			  t.writeToParcel(parcel, 0);
-			  bytesRead = parcel.marshall();
-			for (int j = 0; j < bytesRead.length; j++) {
-			   //str = new String(bytesRead[j]);
-			   receiveTab.append("\nByte " + j + " equals " + bytesRead[j]);
-		   }
-		   */
-			   //nfcATag.close();
-		   }
-		}
-		catch (IOException ex) { receiveTab.append("\nError connecting to tag"); }
-		
-		return;
-	}
-	
-	private void printMessage(NdefRecord record) {
-		byte[] id; //Id of the record
-		short tnf; //TNF: See android.nfc.NdefRecord
-		byte[] payload; //Payload of the record (the actual message)
-		String finalMessage, id_string;
-		id = record.getId();
-		tnf = record.getTnf();
-		payload = record.getPayload();
-		id_string = DataConversion.bytesToASCIIString(id);
-		receiveTab.append("\nID is " + id_string);
-		receiveTab.append("\nTNF is " + tnf);
-		finalMessage = DataConversion.bytesToASCIIString(payload);
-		receiveTab.append("\n" + finalMessage + "\n");
-	}
 	
 	private void vibrate(long time) {
 		//Log.d(TAG, "vibrate");

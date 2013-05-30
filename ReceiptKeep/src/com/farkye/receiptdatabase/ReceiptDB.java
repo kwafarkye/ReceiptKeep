@@ -115,7 +115,7 @@ public class ReceiptDB {
 	}
 	
 	/**
-	 * Retreives all of the receipts in the database
+	 * Retrieves all of the receipts in the database
 	 * 
 	 * @return
 	 *  Cursor with all the receipts in it
