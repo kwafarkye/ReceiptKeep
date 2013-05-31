@@ -4,9 +4,14 @@
 package com.farkye.receiptkeep;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
+
+
+import com.farkye.receiptdatabase.*;
 
 /**
  * @author Kwaku
@@ -14,10 +19,20 @@ import android.view.MenuItem;
  */
 public class ViewReceipts extends Activity {
 
+	private ReceiptDB rdb;
+	private ListView receiptList;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.view_receipts);
+		
+		Cursor receipts = rdb.getAllReceipts();
+		receiptList = (ListView)findViewById(R.id.receipt_view);
+		
+		//SimpleCursorAdapter cAdapter = new SimpleCursorAdapter(context,
+		//		R.layou
+		//R.layout.view_receipts.setAdapter(cAdapter);
 	}
 	
 	@Override

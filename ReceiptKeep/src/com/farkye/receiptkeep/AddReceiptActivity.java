@@ -345,9 +345,11 @@ public class AddReceiptActivity extends Activity {
 		tnf = record.getTnf();
 		payload = record.getPayload();
 		id_string = DataConversion.bytesToASCIIString(id);
+		receiptText.append("\nID is: " + id_string);
 		////receiveTab.append("\nID is " + id_string);
 		////receiveTab.append("\nTNF is " + tnf);
 		finalMessage = DataConversion.bytesToASCIIString(payload);
+		receiptText.append("\n" + finalMessage + "\n");
 		////receiveTab.append("\n" + finalMessage + "\n");
 	}
 	
