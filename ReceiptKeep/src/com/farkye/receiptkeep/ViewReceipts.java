@@ -4,11 +4,14 @@
 package com.farkye.receiptkeep;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 
 import com.farkye.receiptdatabase.*;
@@ -19,6 +22,7 @@ import com.farkye.receiptdatabase.*;
  */
 public class ViewReceipts extends Activity {
 
+	private Context context;
 	private ReceiptDB rdb;
 	private ListView receiptList;
 	
@@ -27,12 +31,36 @@ public class ViewReceipts extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.view_receipts);
 		
+		rdb = new ReceiptDB(this); 
+		
+		try {
+		   rdb.open();
+		} catch (SQLException ex) {
+			//DO Something
+		}
+		
+		rdb.insertReceipt(1, "This is receipt 1");
+		rdb.insertReceipt(2, "This is receipt 2");
+		rdb.insertReceipt(3, "Kwaku's Receipt");
+		
+		
 		Cursor receipts = rdb.getAllReceipts();
 		receiptList = (ListView)findViewById(R.id.receipt_view);
 		
-		//SimpleCursorAdapter cAdapter = new SimpleCursorAdapter(context,
+		String[] from = {"receiptText"};
+		int [] to = new int[] {android.R.id.text1};
+		
+		while (receipts.isAfterLast() == false) {
+			receipts.moveToNext();
+		}
+		
+		SimpleCursorAdapter cAdapter = new SimpleCursorAdapter(this, 
+				android.R.layout.simple_list_item_1, receipts, from, to,
+				0);
 		//		R.layou
 		//R.layout.view_receipts.setAdapter(cAdapter);
+		
+		receiptList.setAdapter(cAdapter);
 	}
 	
 	@Override
