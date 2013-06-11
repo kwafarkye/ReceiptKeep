@@ -44,6 +44,8 @@ public abstract class ReceiptObject {
 	/* Name of the store/business that this receipt is from */
 	private String storeName = "";
 	
+	/* Constant strings for the type of receipt this is */
+	public static final String generalType = "RECEIPT_GENERAL";
 	
 	public ReceiptObject() {
 		timeStamp = new Date();

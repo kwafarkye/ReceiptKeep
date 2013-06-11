@@ -6,6 +6,7 @@
     android:divider="?android:attr/listDivider"
     android:dividerHeight="5dp"
     android:scrollbarAlwaysDrawVerticalTrack="true"
-    android:scrollbarStyle="insideOverlay" >
+    android:scrollbarStyle="insideOverlay"
+    android:choiceMode="singleChoice" >
 
 </ListView>

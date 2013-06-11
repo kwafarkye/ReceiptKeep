@@ -5,6 +5,9 @@ package com.farkye.receiptkeep;
 
 import java.io.IOException;
 
+import com.farkye.receiptdata.GeneralReceipt;
+import com.farkye.receiptdata.ReceiptObject;
+import com.farkye.receiptdatabase.ReceiptDB;
 import com.farkye.utilities.DataConversion;
 
 import android.app.Activity;
@@ -12,6 +15,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.database.SQLException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -47,14 +51,25 @@ public class AddReceiptActivity extends Activity {
 	IntentFilter[] mNdefExchangeFilters;
 	IntentFilter[] mMifareFilters;
 	String[][] mTechLists;
+	ReceiptDB rdb;
+	
+	private boolean receiptAdded = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.add_receipt);
 		
-		receiptText = (TextView) findViewById(R.id.receipt_text);
+		rdb = ((ReceiptKeepApplication)getApplication()).rdb;
+		try {
+			   rdb.open();
+		} catch (SQLException ex) {
+				//DO Something
+		}
 		
+		receiptText = (TextView) findViewById(R.id.receipt_text);
+		receiptText.setText("Waiting for a New Receipt...\n");
 		//Initialize NFC and add Intent
 		nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (nfcAdapter == null)
@@ -337,6 +352,7 @@ public class AddReceiptActivity extends Activity {
 	}
 	
 	private void printMessage(NdefRecord record) {
+		ReceiptObject rObj;
 		byte[] id; //Id of the record
 		short tnf; //TNF: See android.nfc.NdefRecord
 		byte[] payload; //Payload of the record (the actual message)
@@ -345,12 +361,22 @@ public class AddReceiptActivity extends Activity {
 		tnf = record.getTnf();
 		payload = record.getPayload();
 		id_string = DataConversion.bytesToASCIIString(id);
-		receiptText.append("\nID is: " + id_string);
-		////receiveTab.append("\nID is " + id_string);
-		////receiveTab.append("\nTNF is " + tnf);
-		finalMessage = DataConversion.bytesToASCIIString(payload);
-		receiptText.append("\n" + finalMessage + "\n");
-		////receiveTab.append("\n" + finalMessage + "\n");
+		if (!receiptAdded)
+		{ //This receipt hasnt been added yet so lets add it now
+			receiptText.append("\nID is: " + id_string);
+			receiptAdded = true; // Dont add this receipt again
+			////receiveTab.append("\nID is " + id_string);
+			////receiveTab.append("\nTNF is " + tnf);
+			finalMessage = DataConversion.bytesToASCIIString(payload);
+			receiptText.append("\n" + finalMessage + "\n");
+			rObj = new GeneralReceipt(finalMessage);
+			rObj.setReceiptType(ReceiptObject.generalType);
+			rdb.insertReceipt(rObj.getReceiptID(), rObj.getReceiptText());
+			
+			////receiveTab.append("\n" + finalMessage + "\n");
+		}
+		else
+			receiptText.append("\nThis receipt has already been received\n");
 	}
 	
 	protected NdefMessage[] getNdefData(Intent intent) {

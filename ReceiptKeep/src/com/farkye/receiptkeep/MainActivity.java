@@ -33,6 +33,7 @@ import android.nfc.tech.*;
 
 import com.farkye.utilities.*;
 import com.farkye.receiptdata.*;
+import com.farkye.receiptdatabase.ReceiptDB;
 
 
 
@@ -52,6 +53,8 @@ public class MainActivity extends Activity { //FragmentActivity implements
 	
 	Button addReceiptBtn;
 	Button viewReceiptsBtn;
+	
+	ReceiptDB rdb;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,7 @@ public class MainActivity extends Activity { //FragmentActivity implements
 		addReceiptBtn = (Button) findViewById(R.id.add);
 		viewReceiptsBtn = (Button) findViewById(R.id.view_db);
 		
+		rdb = ((ReceiptKeepApplication)getApplication()).rdb;
 		
 	}
 
